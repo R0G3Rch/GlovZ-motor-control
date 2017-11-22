@@ -1,0 +1,169 @@
+#include <AFMotor.h>
+AF_DCMotor thumb (1);           //thumb motor pin 1
+AF_DCMotor index (2);           //index motor pin 2
+AF_DCMotor middle (3);          //midlle motor pin 3
+const int Tpin = A0;            //thumb sensor pin 4
+const int Ipin = A1;            //index sensor pin 5
+const int Mpin = A2;            //middle sensor pin 6
+int TSvalue;                    //flex values
+int ISvalue;
+int MSvalue;
+int Tstate;                     //finger state
+int Istate;
+int Mstate;
+unsigned long previousMillis[3,2];
+unsigned long currentMillis;
+const long interval = 250;     //250 millis off
+int flex[3]={0, 150, 200};      //flex values
+int timerstate[3,2];
+
+void setup() {
+  pinMode(Tpin, INPUT);         //set sensor pins as input
+  pinMode(Ipin, INPUT);
+  pinMode(Mpin, INPUT);
+  thumb.setSpeed(225);          //set motor speed max
+  index.setSpeed(225);
+  middle.setSpeed(225);
+}
+
+void loop() {
+
+  TSvalue = analogRead(Tpin);   //read sensor value, change to analog
+  TSvalue = map(TSvalue,400,900,255,0);
+  ISvalue = analogRead(Ipin);
+  ISvalue = map(TSvalue,400,900,255,0);
+  MSvalue = analogRead(Mpin);
+  MSvalue = map(TSvalue,400,900,255,0);
+
+
+  //compare with flex values thumb 
+  if (TSvalue>flex[0]) {
+    Tstate=HIGH;                 //set Tstate high
+    timerstate[0,0]=HIGH;        //forward timer on
+    previousMillis[0,0]=millis();
+  }
+
+  //if low and previously tstate is high
+  else if (TSvalue<flex[0] && Tstate==HIGH){
+    timerstate[0,1]=HIGH;          //timer on
+    Tstate=LOW;                  //set Tstate low
+    previousMillis[0,1]=millis();
+  }
+  //when timer is initiated
+  if (timerstate[0,0]==HIGH){
+    currentMillis=millis();
+    //check for interval
+    if (currentMillis-previousMillis[0,0]>=interval){
+      previousMillis[0,0]=currentMillis;
+      timerstate[0,0]=LOW;         //turn off timer
+    }
+    if (timerstate[0,1]==HIGH){
+    currentMillis=millis();
+    //check for interval
+    if (currentMillis-previousMillis[0,1]>=interval){
+      previousMillis[0,1]=currentMillis;
+      timerstate[0,1]=LOW;         //turn off timer
+    }
+  }
+
+  //write state
+  if (Tstate==HIGH){
+    thumb.run(FORWARD);
+  }
+  //if timer not initiated when tstate low
+  else if ((Tstate==LOW && timerstate[0,1]==LOW)||timerstate[0,0]==LOW){
+    thumb.run(RELEASE);
+  }
+  //if timer initiated when tstate high
+  else if (Tstate==LOW && timerstate[0,1]==HIGH){
+    thumb.run(BACKWARD);
+  }
+
+
+ //compare with flex values index
+  if (ISvalue>flex[1]) {
+    Istate=HIGH;                 //set Istate high
+    timerstate[1,0]=HIGH;        //forward timer on
+    previousMillis[1,0]=millis();
+  }
+
+  //if low and previously istate is high
+  else if (ISvalue<flex[1] && Istate==HIGH){
+    timerstate[1,1]=HIGH;          //timer on
+    istate=LOW;                  //set istate low
+    previousMillis[1,1]=millis();
+  }
+  //when timer is initiated
+  if (timerstate[1,0]==HIGH){
+    currentMillis=millis();
+    //check for interval
+    if (currentMillis-previousMillis[1,0]>=interval){
+      previousMillis[1,0]=currentMillis;
+      timerstate[1,0]=LOW;         //turn off timer
+    }
+    if (timerstate[1,1]==HIGH){
+    currentMillis=millis();
+    //check for interval
+    if (currentMillis-previousMillis[1,1]>=interval){
+      previousMillis[1,1]=currentMillis;
+      timerstate[1,1]=LOW;         //turn off timer
+    }
+  }
+
+  //write state
+  if (Istate==HIGH){
+    index.run(FORWARD);
+  }
+  //if timer not initiated when istate low
+  else if ((Istate==LOW && timerstate[1,1]==LOW)||timerstate[1,0]==LOW){
+    index.run(RELEASE);
+  }
+  //if timer initiated when istate high
+  else if (Istate==LOW && timerstate[1,1]==HIGH){
+    index.run(BACKWARD);
+  }
+ 
+ 
+  //compare with flex values middle
+  if (MSvalue>flex[2]) {
+    Mstate=HIGH;                 //set mstate high
+    timerstate[2,0]=HIGH;        //forward timer on
+    previousMillis[2,0]=millis();
+  }
+
+  //if low and previously mstate is high
+  else if (MSvalue<flex[2] && Mstate==HIGH){
+    timerstate[2,1]=HIGH;          //timer on
+    Mstate=LOW;                  //set Mstate low
+    previousMillis[2,1]=millis();
+  }
+  //when timer is initiated
+  if (timerstate[2,0]==HIGH){
+    currentMillis=millis();
+    //check for interval
+    if (currentMillis-previousMillis[2,0]>=interval){
+      previousMillis[2,0]=currentMillis;
+      timerstate[2,0]=LOW;         //turn off timer
+    }
+    if (timerstate[2,1]==HIGH){
+    currentMillis=millis();
+    //check for interval
+    if (currentMillis-previousMillis[2,1]>=interval){
+      previousMillis[2,1]=currentMillis;
+      timerstate[2,1]=LOW;         //turn off timer
+    }
+  }
+
+  //write state
+  if (Mstate==HIGH){
+    middle.run(FORWARD);
+  }
+  //if timer not initiated when mstate low
+  else if ((Mstate==LOW && timerstate[2,1]==LOW)||timerstate[2,0]==LOW){
+    middle.run(RELEASE);
+  }
+  //if timer initiated when tstate high
+  else if (Tstate==LOW && timerstate[2,1]==HIGH){
+    middle.run(BACKWARD);
+  }
+}
