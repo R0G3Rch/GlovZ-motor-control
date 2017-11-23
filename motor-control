@@ -67,7 +67,7 @@ void loop() {
   }
 
   //write state
-  if (Tstate==HIGH){
+  if (Tstate==HIGH && timerstate[0,0]==HIGH){
     thumb.run(FORWARD);
   }
   //if timer not initiated when tstate low
@@ -111,7 +111,7 @@ void loop() {
   }
 
   //write state
-  if (Istate==HIGH){
+  if (Istate==HIGH && timerstate[1,0]==HIGH){
     index.run(FORWARD);
   }
   //if timer not initiated when istate low
@@ -155,7 +155,7 @@ void loop() {
   }
 
   //write state
-  if (Mstate==HIGH){
+  if (Mstate==HIGH && timerstate[2,0]==HIGH){
     middle.run(FORWARD);
   }
   //if timer not initiated when mstate low
